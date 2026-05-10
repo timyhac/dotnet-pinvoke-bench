@@ -1,0 +1,12 @@
+.{
+    .name = .dotnet_pinvoke_bench,
+    .version = "0.1.0",
+    .fingerprint = 0x7484ade4c32f4d83,
+    .minimum_zig_version = "0.14.0",
+    .dependencies = .{},
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "native",
+    },
+}

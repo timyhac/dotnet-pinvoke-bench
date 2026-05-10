@@ -1,0 +1,63 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net48;net8.0;net10.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>PInvokeBench</RootNamespace>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <PackageReference Include="System.Memory" Version="4.6.0" />
+  </ItemGroup>
+
+  <!--
+    Copy the platform-appropriate native bench library to the output directory.
+    Build it first by running `zig build` from ../native (or use ../run.{ps1,sh}).
+  -->
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <None Include="..\runtimes\win-x64\native\bench.dll"
+          Condition="Exists('..\runtimes\win-x64\native\bench.dll')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>bench.dll</Link>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+    <None Include="..\runtimes\linux-x64\native\libbench.so"
+          Condition="Exists('..\runtimes\linux-x64\native\libbench.so')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>libbench.so</Link>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+    <None Include="..\runtimes\osx-x64\native\libbench.dylib"
+          Condition="Exists('..\runtimes\osx-x64\native\libbench.dylib') And '$(RuntimeIdentifier)' != 'osx-arm64'">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>libbench.dylib</Link>
+    </None>
+    <None Include="..\runtimes\osx-arm64\native\libbench.dylib"
+          Condition="Exists('..\runtimes\osx-arm64\native\libbench.dylib') And '$(RuntimeIdentifier)' == 'osx-arm64'">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>libbench.dylib</Link>
+    </None>
+  </ItemGroup>
+
+  <Target Name="WarnIfNativeMissing" AfterTargets="Build" Condition="'$(OutDir)' != ''">
+    <Warning Condition="$([MSBuild]::IsOSPlatform('Windows')) And !Exists('$(OutDir)bench.dll')"
+             Text="Native bench.dll not found in $(OutDir). Run `zig build` from ../native (or ../run.ps1) before running benchmarks." />
+    <Warning Condition="$([MSBuild]::IsOSPlatform('Linux')) And !Exists('$(OutDir)libbench.so')"
+             Text="Native libbench.so not found in $(OutDir). Run `zig build` from ../native (or ../run.sh) before running benchmarks." />
+    <Warning Condition="$([MSBuild]::IsOSPlatform('OSX')) And !Exists('$(OutDir)libbench.dylib')"
+             Text="Native libbench.dylib not found in $(OutDir). Run `zig build` from ../native (or ../run.sh) before running benchmarks." />
+  </Target>
+
+</Project>

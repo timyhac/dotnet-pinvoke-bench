@@ -1,0 +1,19 @@
+# Build output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+BenchmarkDotNet.Artifacts/
+
+# Native build artefacts (built on demand via `zig build`)
+runtimes/
+.zig-cache/
+zig-out/
+
+# IDE / OS
+.vs/
+.idea/
+*.user
+*.suo
+.DS_Store
+Thumbs.db
