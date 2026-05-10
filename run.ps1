@@ -4,15 +4,11 @@
 # Usage:
 #   .\run.ps1                          # net8.0 only
 #   .\run.ps1 net8.0 net10.0 net48     # one run per TFM, sequentially
-#   .\run.ps1 -Filter '*Noop*'         # forwarded to BenchmarkDotNet
-#   .\run.ps1 -Job Default             # forwarded; default is Short
 
 [CmdletBinding()]
 param(
     [Parameter(Position = 0, ValueFromRemainingArguments = $true)]
-    [string[]] $Tfms = @('net8.0'),
-    [string]   $Filter = '*',
-    [string]   $Job    = 'Short'
+    [string[]] $Tfms = @('net8.0')
 )
 
 $ErrorActionPreference = 'Stop'
@@ -40,7 +36,7 @@ foreach ($tfm in $Tfms) {
     Write-Host "==> Running benchmarks on $tfm" -ForegroundColor Cyan
     Push-Location $benchDir
     try {
-        & dotnet run -c Release -f $tfm -- --filter $Filter --job $Job
+        & dotnet run -c Release -f $tfm -- --job Default
         if ($LASTEXITCODE -ne 0) { throw "dotnet run failed for $tfm" }
     } finally { Pop-Location }
 }

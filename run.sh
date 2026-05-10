@@ -5,8 +5,6 @@
 # Usage:
 #   ./run.sh                          # net8.0 only
 #   ./run.sh net8.0 net10.0           # one run per TFM, sequentially
-#   FILTER='*Noop*' ./run.sh net8.0   # filter forwarded to BenchmarkDotNet
-#   JOB=Default ./run.sh net8.0       # job forwarded; default is Short
 
 set -euo pipefail
 
@@ -14,8 +12,6 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 native_dir="$root/native"
 bench_dir="$root/benchmark"
 
-filter="${FILTER:-*}"
-job="${JOB:-Short}"
 tfms=("$@")
 if [[ ${#tfms[@]} -eq 0 ]]; then tfms=(net8.0); fi
 
@@ -28,7 +24,7 @@ echo "==> Building native shim with zig (ReleaseFast)"
 for tfm in "${tfms[@]}"; do
     echo
     echo "==> Running benchmarks on $tfm"
-    ( cd "$bench_dir" && dotnet run -c Release -f "$tfm" -- --filter "$filter" --job "$job" )
+    ( cd "$bench_dir" && dotnet run -c Release -f "$tfm" -- --job Default )
 done
 
 echo
