@@ -4,7 +4,7 @@
 #
 # Usage:
 #   ./run.sh                          # net8.0 only, full job
-#   ./run.sh net8.0 net10.0           # one run per TFM, sequentially
+#   ./run.sh net8.0 net10.0 net481    # one run per TFM, sequentially
 #   ./run.sh --short                  # BenchmarkDotNet Short job (fewer iterations, faster)
 #   ./run.sh --short net8.0 net10.0   # Short job across multiple TFMs
 

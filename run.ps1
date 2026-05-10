@@ -3,7 +3,7 @@
 #
 # Usage:
 #   .\run.ps1                          # net8.0 only, full job
-#   .\run.ps1 net8.0 net10.0 net48     # one run per TFM, sequentially
+#   .\run.ps1 net8.0 net10.0 net481    # one run per TFM, sequentially
 #   .\run.ps1 -Short                   # BenchmarkDotNet Short job (fewer iterations, faster)
 #   .\run.ps1 -Short net8.0 net10.0    # Short job across multiple TFMs
 
