@@ -3,8 +3,10 @@
 # .NET TFM. Defaults to net8.0 if no TFMs are passed.
 #
 # Usage:
-#   ./run.sh                          # net8.0 only
+#   ./run.sh                          # net8.0 only, full job
 #   ./run.sh net8.0 net10.0           # one run per TFM, sequentially
+#   ./run.sh --short                  # BenchmarkDotNet Short job (fewer iterations, faster)
+#   ./run.sh --short net8.0 net10.0   # Short job across multiple TFMs
 
 set -euo pipefail
 
@@ -12,7 +14,14 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 native_dir="$root/native"
 bench_dir="$root/benchmark"
 
-tfms=("$@")
+job="Default"
+tfms=()
+for arg in "$@"; do
+    case "$arg" in
+        --short) job="Short" ;;
+        *)       tfms+=("$arg") ;;
+    esac
+done
 if [[ ${#tfms[@]} -eq 0 ]]; then tfms=(net8.0); fi
 
 if ! command -v zig    >/dev/null 2>&1; then echo "zig not found on PATH"    >&2; exit 1; fi
@@ -23,8 +32,8 @@ echo "==> Building native shim with zig (ReleaseFast)"
 
 for tfm in "${tfms[@]}"; do
     echo
-    echo "==> Running benchmarks on $tfm"
-    ( cd "$bench_dir" && dotnet run -c Release -f "$tfm" -- --job Default )
+    echo "==> Running benchmarks on $tfm (job: $job)"
+    ( cd "$bench_dir" && dotnet run -c Release -f "$tfm" -- --filter '*' --job "$job" )
 done
 
 echo

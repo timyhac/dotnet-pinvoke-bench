@@ -2,11 +2,14 @@
 # .NET TFM. Defaults to net8.0 if no TFMs are passed.
 #
 # Usage:
-#   .\run.ps1                          # net8.0 only
+#   .\run.ps1                          # net8.0 only, full job
 #   .\run.ps1 net8.0 net10.0 net48     # one run per TFM, sequentially
+#   .\run.ps1 -Short                   # BenchmarkDotNet Short job (fewer iterations, faster)
+#   .\run.ps1 -Short net8.0 net10.0    # Short job across multiple TFMs
 
 [CmdletBinding()]
 param(
+    [switch] $Short,
     [Parameter(Position = 0, ValueFromRemainingArguments = $true)]
     [string[]] $Tfms = @('net8.0')
 )
@@ -31,12 +34,14 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "zig build failed" }
 } finally { Pop-Location }
 
+$job = if ($Short) { 'Short' } else { 'Default' }
+
 foreach ($tfm in $Tfms) {
     Write-Host ""
-    Write-Host "==> Running benchmarks on $tfm" -ForegroundColor Cyan
+    Write-Host "==> Running benchmarks on $tfm (job: $job)" -ForegroundColor Cyan
     Push-Location $benchDir
     try {
-        & dotnet run -c Release -f $tfm -- --job Default
+        & dotnet run -c Release -f $tfm -- --filter '*' --job $job
         if ($LASTEXITCODE -ne 0) { throw "dotnet run failed for $tfm" }
     } finally { Pop-Location }
 }
