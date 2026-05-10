@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>PInvokeBench</RootNamespace>
-    <PlatformTarget>x64</PlatformTarget>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">$(NETCoreSdkPortableRuntimeIdentifier)</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,29 +23,24 @@
     Build it first by running `zig build` from ../native (or use ../run.{ps1,sh}).
   -->
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-    <None Include="..\runtimes\win-x64\native\bench.dll"
-          Condition="Exists('..\runtimes\win-x64\native\bench.dll')">
+    <None Include="..\runtimes\$(RuntimeIdentifier)\native\bench.dll"
+          Condition="Exists('..\runtimes\$(RuntimeIdentifier)\native\bench.dll')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>bench.dll</Link>
     </None>
   </ItemGroup>
 
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-    <None Include="..\runtimes\linux-x64\native\libbench.so"
-          Condition="Exists('..\runtimes\linux-x64\native\libbench.so')">
+    <None Include="..\runtimes\$(RuntimeIdentifier)\native\libbench.so"
+          Condition="Exists('..\runtimes\$(RuntimeIdentifier)\native\libbench.so')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>libbench.so</Link>
     </None>
   </ItemGroup>
 
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
-    <None Include="..\runtimes\osx-x64\native\libbench.dylib"
-          Condition="Exists('..\runtimes\osx-x64\native\libbench.dylib') And '$(RuntimeIdentifier)' != 'osx-arm64'">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>libbench.dylib</Link>
-    </None>
-    <None Include="..\runtimes\osx-arm64\native\libbench.dylib"
-          Condition="Exists('..\runtimes\osx-arm64\native\libbench.dylib') And '$(RuntimeIdentifier)' == 'osx-arm64'">
+    <None Include="..\runtimes\$(RuntimeIdentifier)\native\libbench.dylib"
+          Condition="Exists('..\runtimes\$(RuntimeIdentifier)\native\libbench.dylib')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>libbench.dylib</Link>
     </None>
