@@ -6,7 +6,8 @@ const Rid = struct {
 };
 
 const default_rids = [_]Rid{
-    .{ .name = "win-x64",     .query = .{ .cpu_arch = .x86_64,  .os_tag = .windows, .abi = .gnu } },
+    .{ .name = "win-x64",     .query = .{ .cpu_arch = .x86_64,  .os_tag = .windows, .abi = .msvc } },
+    .{ .name = "win-arm64",   .query = .{ .cpu_arch = .aarch64, .os_tag = .windows, .abi = .msvc } },
     .{ .name = "linux-x64",   .query = .{ .cpu_arch = .x86_64,  .os_tag = .linux,   .abi = .gnu } },
     .{ .name = "linux-arm64", .query = .{ .cpu_arch = .aarch64, .os_tag = .linux,   .abi = .gnu } },
     .{ .name = "osx-x64",     .query = .{ .cpu_arch = .x86_64,  .os_tag = .macos } },
