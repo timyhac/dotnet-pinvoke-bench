@@ -12,11 +12,11 @@ The native side is a tiny Zig library that cross-compiles to Windows / Linux / m
 
 ```sh
 # Windows
-.\run.ps1                          # net8.0 only (default)
+.\run.ps1                          # net10.0 only (default)
 .\run.ps1 net8.0 net10.0 net48     # one run per TFM, sequentially
 
 # Linux / macOS
-./run.sh                           # net8.0 only (default)
+./run.sh                           # net10.0 only (default)
 ./run.sh net8.0 net10.0            # one run per TFM, sequentially
 ```
 

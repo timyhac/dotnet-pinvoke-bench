@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # Build the native shim with Zig, then run BenchmarkDotNet for each requested
-# .NET TFM. Defaults to net8.0 if no TFMs are passed.
+# .NET TFM. Defaults to net10.0 if no TFMs are passed.
 #
 # Usage:
-#   ./run.sh                          # net8.0 only, full job
+#   ./run.sh                          # net10.0 only, full job
 #   ./run.sh net8.0 net10.0 net481    # one run per TFM, sequentially
 #   ./run.sh --short                  # BenchmarkDotNet Short job (fewer iterations, faster)
 #   ./run.sh --short net8.0 net10.0   # Short job across multiple TFMs
+#   ./run.sh --aot                    # Include net10.0 NativeAOT benchmarks
 
 set -euo pipefail
 
@@ -15,20 +16,29 @@ native_dir="$root/native"
 bench_dir="$root/benchmark"
 
 job="Default"
+aot=0
 tfms=()
 for arg in "$@"; do
     case "$arg" in
         --short) job="Short" ;;
+        --aot)   aot=0 ;;
         *)       tfms+=("$arg") ;;
     esac
 done
-if [[ ${#tfms[@]} -eq 0 ]]; then tfms=(net8.0); fi
+if [[ ${#tfms[@]} -eq 0 ]]; then tfms=(net10.0); fi
 
 if ! command -v zig    >/dev/null 2>&1; then echo "zig not found on PATH"    >&2; exit 1; fi
 if ! command -v dotnet >/dev/null 2>&1; then echo "dotnet not found on PATH" >&2; exit 1; fi
 
 echo "==> Building native shim with zig (ReleaseFast)"
 ( cd "$native_dir" && zig build -Doptimize=ReleaseFast )
+
+if [[ $aot -eq 1 ]]; then
+    echo
+    echo "==> Running benchmarks on NativeAOT .NET 10 (job: $job)"
+    ( cd "$bench_dir" && CustomBeforeMicrosoftCommonTargets="$root/nativeaot-bench.targets" \
+        dotnet run -c Release -f net10.0 -- --filter '*' --job "$job" --runtimes nativeaot10.0 )
+fi
 
 for tfm in "${tfms[@]}"; do
     echo

@@ -38,5 +38,17 @@ pub fn build(b: *std.Build) void {
         });
 
         b.getInstallStep().dependOn(&install.step);
+
+        const static_lib = b.addLibrary(.{
+            .name = "bench",
+            .linkage = .static,
+            .root_module = mod,
+        });
+
+        const static_install = b.addInstallArtifact(static_lib, .{
+            .dest_dir = .{ .override = .{ .custom = b.fmt("../../runtimes/{s}/native/static", .{rid.name}) } },
+        });
+
+        b.getInstallStep().dependOn(&static_install.step);
     }
 }
