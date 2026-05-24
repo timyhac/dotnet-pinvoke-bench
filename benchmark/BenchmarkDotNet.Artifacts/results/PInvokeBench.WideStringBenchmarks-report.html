@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>PInvokeBench.WideStringBenchmarks-20260521-202310</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.14.0, Windows 11 (10.0.26200.8457)
+11th Gen Intel Core i7-1195G7 2.90GHz, 1 CPU, 8 logical and 4 physical cores
+.NET SDK 10.0.300
+  [Host]   : .NET 8.0.27 (8.0.2726.22922), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  ShortRun : .NET 8.0.27 (8.0.2726.22922), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+</code></pre>
+<pre><code>Job=ShortRun  IterationCount=3  LaunchCount=1  
+WarmupCount=3  
+</code></pre>
+
+<table>
+<thead><tr><th>Method                   </th><th>Length</th><th>Pay</th><th>Mean  </th><th>Error  </th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>DllImport_CharSetUnicode</td><td>0</td><td>Ascii</td><td>9.870 ns</td><td>16.4467 ns</td><td>0.9015 ns</td><td>1.01</td><td>0.11</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_LPWStr</td><td>0</td><td>Ascii</td><td>6.600 ns</td><td>3.7615 ns</td><td>0.2062 ns</td><td>0.67</td><td>0.06</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharPointer</td><td>0</td><td>Ascii</td><td>5.185 ns</td><td>2.3659 ns</td><td>0.1297 ns</td><td>0.53</td><td>0.04</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharArray</td><td>0</td><td>Ascii</td><td>206.999 ns</td><td>387.6680 ns</td><td>21.2494 ns</td><td>21.09</td><td>2.50</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_StringBuilder</td><td>0</td><td>Ascii</td><td>23.923 ns</td><td>18.2172 ns</td><td>0.9985 ns</td><td>2.44</td><td>0.21</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16</td><td>0</td><td>Ascii</td><td>5.966 ns</td><td>8.2856 ns</td><td>0.4542 ns</td><td>0.61</td><td>0.06</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16_SuppressGC</td><td>0</td><td>Ascii</td><td>1.823 ns</td><td>3.2487 ns</td><td>0.1781 ns</td><td>0.19</td><td>0.02</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan</td><td>0</td><td>Ascii</td><td>7.012 ns</td><td>0.8535 ns</td><td>0.0468 ns</td><td>0.71</td><td>0.06</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan_SuppressGC</td><td>0</td><td>Ascii</td><td>1.447 ns</td><td>1.0489 ns</td><td>0.0575 ns</td><td>0.15</td><td>0.01</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharSetUnicode</td><td>0</td><td>Latin1</td><td>10.158 ns</td><td>23.4763 ns</td><td>1.2868 ns</td><td>1.01</td><td>0.16</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_LPWStr</td><td>0</td><td>Latin1</td><td>8.146 ns</td><td>17.2332 ns</td><td>0.9446 ns</td><td>0.81</td><td>0.12</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharPointer</td><td>0</td><td>Latin1</td><td>8.730 ns</td><td>8.0635 ns</td><td>0.4420 ns</td><td>0.87</td><td>0.11</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharArray</td><td>0</td><td>Latin1</td><td>201.510 ns</td><td>321.4834 ns</td><td>17.6216 ns</td><td>20.06</td><td>2.74</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_StringBuilder</td><td>0</td><td>Latin1</td><td>26.667 ns</td><td>19.4404 ns</td><td>1.0656 ns</td><td>2.65</td><td>0.31</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16</td><td>0</td><td>Latin1</td><td>8.097 ns</td><td>20.4814 ns</td><td>1.1227 ns</td><td>0.81</td><td>0.13</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16_SuppressGC</td><td>0</td><td>Latin1</td><td>2.186 ns</td><td>3.0535 ns</td><td>0.1674 ns</td><td>0.22</td><td>0.03</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan</td><td>0</td><td>Latin1</td><td>5.832 ns</td><td>5.6104 ns</td><td>0.3075 ns</td><td>0.58</td><td>0.07</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan_SuppressGC</td><td>0</td><td>Latin1</td><td>4.710 ns</td><td>7.3750 ns</td><td>0.4042 ns</td><td>0.47</td><td>0.06</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharSetUnicode</td><td>0</td><td>Cjk</td><td>12.399 ns</td><td>19.6754 ns</td><td>1.0785 ns</td><td>1.01</td><td>0.11</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_LPWStr</td><td>0</td><td>Cjk</td><td>16.749 ns</td><td>12.2141 ns</td><td>0.6695 ns</td><td>1.36</td><td>0.12</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharPointer</td><td>0</td><td>Cjk</td><td>14.648 ns</td><td>27.8366 ns</td><td>1.5258 ns</td><td>1.19</td><td>0.14</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharArray</td><td>0</td><td>Cjk</td><td>185.475 ns</td><td>242.6461 ns</td><td>13.3003 ns</td><td>15.04</td><td>1.51</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_StringBuilder</td><td>0</td><td>Cjk</td><td>25.335 ns</td><td>29.5948 ns</td><td>1.6222 ns</td><td>2.05</td><td>0.20</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16</td><td>0</td><td>Cjk</td><td>7.447 ns</td><td>19.9395 ns</td><td>1.0929 ns</td><td>0.60</td><td>0.09</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16_SuppressGC</td><td>0</td><td>Cjk</td><td>1.778 ns</td><td>1.8418 ns</td><td>0.1010 ns</td><td>0.14</td><td>0.01</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan</td><td>0</td><td>Cjk</td><td>10.363 ns</td><td>12.3695 ns</td><td>0.6780 ns</td><td>0.84</td><td>0.08</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan_SuppressGC</td><td>0</td><td>Cjk</td><td>3.765 ns</td><td>6.3444 ns</td><td>0.3478 ns</td><td>0.31</td><td>0.03</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharSetUnicode</td><td>16</td><td>Ascii</td><td>27.263 ns</td><td>27.4762 ns</td><td>1.5061 ns</td><td>1.00</td><td>0.07</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_LPWStr</td><td>16</td><td>Ascii</td><td>29.538 ns</td><td>27.0792 ns</td><td>1.4843 ns</td><td>1.09</td><td>0.07</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharPointer</td><td>16</td><td>Ascii</td><td>17.349 ns</td><td>26.1144 ns</td><td>1.4314 ns</td><td>0.64</td><td>0.06</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharArray</td><td>16</td><td>Ascii</td><td>267.946 ns</td><td>306.7643 ns</td><td>16.8148 ns</td><td>9.85</td><td>0.72</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_StringBuilder</td><td>16</td><td>Ascii</td><td>49.718 ns</td><td>19.7088 ns</td><td>1.0803 ns</td><td>1.83</td><td>0.10</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16</td><td>16</td><td>Ascii</td><td>17.884 ns</td><td>19.4071 ns</td><td>1.0638 ns</td><td>0.66</td><td>0.05</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16_SuppressGC</td><td>16</td><td>Ascii</td><td>12.837 ns</td><td>12.7063 ns</td><td>0.6965 ns</td><td>0.47</td><td>0.03</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan</td><td>16</td><td>Ascii</td><td>10.894 ns</td><td>11.8493 ns</td><td>0.6495 ns</td><td>0.40</td><td>0.03</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan_SuppressGC</td><td>16</td><td>Ascii</td><td>9.069 ns</td><td>4.8930 ns</td><td>0.2682 ns</td><td>0.33</td><td>0.02</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharSetUnicode</td><td>16</td><td>Latin1</td><td>11.189 ns</td><td>0.4152 ns</td><td>0.0228 ns</td><td>1.00</td><td>0.00</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_LPWStr</td><td>16</td><td>Latin1</td><td>19.144 ns</td><td>7.1505 ns</td><td>0.3919 ns</td><td>1.71</td><td>0.03</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharPointer</td><td>16</td><td>Latin1</td><td>17.605 ns</td><td>13.8118 ns</td><td>0.7571 ns</td><td>1.57</td><td>0.06</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharArray</td><td>16</td><td>Latin1</td><td>506.972 ns</td><td>33.0658 ns</td><td>1.8125 ns</td><td>45.31</td><td>0.16</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_StringBuilder</td><td>16</td><td>Latin1</td><td>89.475 ns</td><td>26.8260 ns</td><td>1.4704 ns</td><td>8.00</td><td>0.11</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16</td><td>16</td><td>Latin1</td><td>17.061 ns</td><td>6.2997 ns</td><td>0.3453 ns</td><td>1.52</td><td>0.03</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16_SuppressGC</td><td>16</td><td>Latin1</td><td>9.784 ns</td><td>8.6514 ns</td><td>0.4742 ns</td><td>0.87</td><td>0.04</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan</td><td>16</td><td>Latin1</td><td>18.038 ns</td><td>11.0125 ns</td><td>0.6036 ns</td><td>1.61</td><td>0.05</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan_SuppressGC</td><td>16</td><td>Latin1</td><td>12.203 ns</td><td>32.2695 ns</td><td>1.7688 ns</td><td>1.09</td><td>0.14</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharSetUnicode</td><td>16</td><td>Cjk</td><td>11.766 ns</td><td>37.1791 ns</td><td>2.0379 ns</td><td>1.02</td><td>0.21</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_LPWStr</td><td>16</td><td>Cjk</td><td>15.097 ns</td><td>38.0083 ns</td><td>2.0834 ns</td><td>1.31</td><td>0.24</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharPointer</td><td>16</td><td>Cjk</td><td>10.755 ns</td><td>7.8452 ns</td><td>0.4300 ns</td><td>0.93</td><td>0.13</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharArray</td><td>16</td><td>Cjk</td><td>221.322 ns</td><td>561.9734 ns</td><td>30.8037 ns</td><td>19.16</td><td>3.51</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_StringBuilder</td><td>16</td><td>Cjk</td><td>41.579 ns</td><td>64.8212 ns</td><td>3.5531 ns</td><td>3.60</td><td>0.56</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16</td><td>16</td><td>Cjk</td><td>10.991 ns</td><td>16.5403 ns</td><td>0.9066 ns</td><td>0.95</td><td>0.15</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16_SuppressGC</td><td>16</td><td>Cjk</td><td>7.846 ns</td><td>6.7772 ns</td><td>0.3715 ns</td><td>0.68</td><td>0.10</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan</td><td>16</td><td>Cjk</td><td>14.175 ns</td><td>47.9048 ns</td><td>2.6258 ns</td><td>1.23</td><td>0.26</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan_SuppressGC</td><td>16</td><td>Cjk</td><td>9.012 ns</td><td>9.2920 ns</td><td>0.5093 ns</td><td>0.78</td><td>0.11</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharSetUnicode</td><td>256</td><td>Ascii</td><td>122.390 ns</td><td>64.4492 ns</td><td>3.5327 ns</td><td>1.00</td><td>0.04</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_LPWStr</td><td>256</td><td>Ascii</td><td>163.305 ns</td><td>62.7077 ns</td><td>3.4372 ns</td><td>1.34</td><td>0.04</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharPointer</td><td>256</td><td>Ascii</td><td>230.093 ns</td><td>493.6555 ns</td><td>27.0589 ns</td><td>1.88</td><td>0.20</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharArray</td><td>256</td><td>Ascii</td><td>435.773 ns</td><td>607.2370 ns</td><td>33.2847 ns</td><td>3.56</td><td>0.25</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_StringBuilder</td><td>256</td><td>Ascii</td><td>207.755 ns</td><td>23.7733 ns</td><td>1.3031 ns</td><td>1.70</td><td>0.04</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16</td><td>256</td><td>Ascii</td><td>167.650 ns</td><td>275.9938 ns</td><td>15.1282 ns</td><td>1.37</td><td>0.11</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16_SuppressGC</td><td>256</td><td>Ascii</td><td>163.893 ns</td><td>149.8915 ns</td><td>8.2161 ns</td><td>1.34</td><td>0.07</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan</td><td>256</td><td>Ascii</td><td>147.151 ns</td><td>263.2469 ns</td><td>14.4295 ns</td><td>1.20</td><td>0.11</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan_SuppressGC</td><td>256</td><td>Ascii</td><td>131.852 ns</td><td>110.6102 ns</td><td>6.0629 ns</td><td>1.08</td><td>0.05</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharSetUnicode</td><td>256</td><td>Latin1</td><td>157.162 ns</td><td>28.7472 ns</td><td>1.5757 ns</td><td>1.00</td><td>0.01</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_LPWStr</td><td>256</td><td>Latin1</td><td>137.853 ns</td><td>156.6213 ns</td><td>8.5849 ns</td><td>0.88</td><td>0.05</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharPointer</td><td>256</td><td>Latin1</td><td>149.782 ns</td><td>171.3943 ns</td><td>9.3947 ns</td><td>0.95</td><td>0.05</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharArray</td><td>256</td><td>Latin1</td><td>548.494 ns</td><td>670.4063 ns</td><td>36.7472 ns</td><td>3.49</td><td>0.20</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_StringBuilder</td><td>256</td><td>Latin1</td><td>184.215 ns</td><td>185.5058 ns</td><td>10.1682 ns</td><td>1.17</td><td>0.06</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16</td><td>256</td><td>Latin1</td><td>132.488 ns</td><td>37.0648 ns</td><td>2.0316 ns</td><td>0.84</td><td>0.01</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16_SuppressGC</td><td>256</td><td>Latin1</td><td>125.175 ns</td><td>53.6535 ns</td><td>2.9409 ns</td><td>0.80</td><td>0.02</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan</td><td>256</td><td>Latin1</td><td>133.597 ns</td><td>181.8255 ns</td><td>9.9665 ns</td><td>0.85</td><td>0.06</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan_SuppressGC</td><td>256</td><td>Latin1</td><td>121.765 ns</td><td>53.1325 ns</td><td>2.9124 ns</td><td>0.77</td><td>0.02</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharSetUnicode</td><td>256</td><td>Cjk</td><td>132.816 ns</td><td>85.6886 ns</td><td>4.6969 ns</td><td>1.00</td><td>0.04</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_LPWStr</td><td>256</td><td>Cjk</td><td>132.981 ns</td><td>94.0628 ns</td><td>5.1559 ns</td><td>1.00</td><td>0.05</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharPointer</td><td>256</td><td>Cjk</td><td>126.144 ns</td><td>70.8302 ns</td><td>3.8824 ns</td><td>0.95</td><td>0.04</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharArray</td><td>256</td><td>Cjk</td><td>598.752 ns</td><td>2,744.3678 ns</td><td>150.4281 ns</td><td>4.51</td><td>0.99</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_StringBuilder</td><td>256</td><td>Cjk</td><td>190.419 ns</td><td>293.9333 ns</td><td>16.1115 ns</td><td>1.43</td><td>0.11</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16</td><td>256</td><td>Cjk</td><td>127.717 ns</td><td>42.3375 ns</td><td>2.3207 ns</td><td>0.96</td><td>0.03</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16_SuppressGC</td><td>256</td><td>Cjk</td><td>122.176 ns</td><td>54.8524 ns</td><td>3.0066 ns</td><td>0.92</td><td>0.03</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan</td><td>256</td><td>Cjk</td><td>124.869 ns</td><td>44.2193 ns</td><td>2.4238 ns</td><td>0.94</td><td>0.03</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan_SuppressGC</td><td>256</td><td>Cjk</td><td>122.046 ns</td><td>49.3148 ns</td><td>2.7031 ns</td><td>0.92</td><td>0.03</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharSetUnicode</td><td>4096</td><td>Ascii</td><td>1,805.096 ns</td><td>664.6995 ns</td><td>36.4344 ns</td><td>1.00</td><td>0.02</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_LPWStr</td><td>4096</td><td>Ascii</td><td>1,819.994 ns</td><td>771.1874 ns</td><td>42.2714 ns</td><td>1.01</td><td>0.03</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharPointer</td><td>4096</td><td>Ascii</td><td>1,891.157 ns</td><td>1,348.5299 ns</td><td>73.9175 ns</td><td>1.05</td><td>0.04</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharArray</td><td>4096</td><td>Ascii</td><td>3,294.489 ns</td><td>2,716.5488 ns</td><td>148.9032 ns</td><td>1.83</td><td>0.08</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_StringBuilder</td><td>4096</td><td>Ascii</td><td>2,446.787 ns</td><td>2,185.7201 ns</td><td>119.8067 ns</td><td>1.36</td><td>0.06</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16</td><td>4096</td><td>Ascii</td><td>1,788.336 ns</td><td>415.3738 ns</td><td>22.7680 ns</td><td>0.99</td><td>0.02</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16_SuppressGC</td><td>4096</td><td>Ascii</td><td>1,832.048 ns</td><td>412.6814 ns</td><td>22.6205 ns</td><td>1.02</td><td>0.02</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan</td><td>4096</td><td>Ascii</td><td>1,818.075 ns</td><td>719.1981 ns</td><td>39.4217 ns</td><td>1.01</td><td>0.03</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan_SuppressGC</td><td>4096</td><td>Ascii</td><td>1,820.351 ns</td><td>672.7000 ns</td><td>36.8730 ns</td><td>1.01</td><td>0.02</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharSetUnicode</td><td>4096</td><td>Latin1</td><td>1,915.206 ns</td><td>2,154.5121 ns</td><td>118.0961 ns</td><td>1.00</td><td>0.08</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_LPWStr</td><td>4096</td><td>Latin1</td><td>1,852.931 ns</td><td>998.2321 ns</td><td>54.7165 ns</td><td>0.97</td><td>0.06</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharPointer</td><td>4096</td><td>Latin1</td><td>1,887.182 ns</td><td>878.9634 ns</td><td>48.1789 ns</td><td>0.99</td><td>0.06</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharArray</td><td>4096</td><td>Latin1</td><td>3,489.078 ns</td><td>7,505.8123 ns</td><td>411.4189 ns</td><td>1.83</td><td>0.21</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_StringBuilder</td><td>4096</td><td>Latin1</td><td>3,788.251 ns</td><td>7,648.6479 ns</td><td>419.2482 ns</td><td>1.98</td><td>0.22</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16</td><td>4096</td><td>Latin1</td><td>1,948.982 ns</td><td>1,497.1183 ns</td><td>82.0621 ns</td><td>1.02</td><td>0.07</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16_SuppressGC</td><td>4096</td><td>Latin1</td><td>2,014.267 ns</td><td>3,263.0645 ns</td><td>178.8596 ns</td><td>1.05</td><td>0.10</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan</td><td>4096</td><td>Latin1</td><td>1,806.101 ns</td><td>484.1683 ns</td><td>26.5389 ns</td><td>0.95</td><td>0.05</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan_SuppressGC</td><td>4096</td><td>Latin1</td><td>1,890.410 ns</td><td>1,193.7715 ns</td><td>65.4346 ns</td><td>0.99</td><td>0.06</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharSetUnicode</td><td>4096</td><td>Cjk</td><td>1,942.871 ns</td><td>706.7140 ns</td><td>38.7374 ns</td><td>1.00</td><td>0.02</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_LPWStr</td><td>4096</td><td>Cjk</td><td>1,845.567 ns</td><td>970.9969 ns</td><td>53.2236 ns</td><td>0.95</td><td>0.03</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharPointer</td><td>4096</td><td>Cjk</td><td>2,164.478 ns</td><td>1,779.8525 ns</td><td>97.5597 ns</td><td>1.11</td><td>0.05</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_CharArray</td><td>4096</td><td>Cjk</td><td>3,651.439 ns</td><td>5,330.6612 ns</td><td>292.1915 ns</td><td>1.88</td><td>0.13</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_StringBuilder</td><td>4096</td><td>Cjk</td><td>2,277.881 ns</td><td>896.6075 ns</td><td>49.1461 ns</td><td>1.17</td><td>0.03</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16</td><td>4096</td><td>Cjk</td><td>1,912.219 ns</td><td>1,394.8860 ns</td><td>76.4584 ns</td><td>0.98</td><td>0.04</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Utf16_SuppressGC</td><td>4096</td><td>Cjk</td><td>1,796.124 ns</td><td>409.3939 ns</td><td>22.4403 ns</td><td>0.92</td><td>0.02</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan</td><td>4096</td><td>Cjk</td><td>1,801.828 ns</td><td>592.7971 ns</td><td>32.4932 ns</td><td>0.93</td><td>0.02</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_ROSpan_SuppressGC</td><td>4096</td><td>Cjk</td><td>1,851.377 ns</td><td>1,760.1495 ns</td><td>96.4797 ns</td><td>0.95</td><td>0.05</td><td>-</td><td>NA</td>
+</tr></tbody></table>
+</body>
+</html>

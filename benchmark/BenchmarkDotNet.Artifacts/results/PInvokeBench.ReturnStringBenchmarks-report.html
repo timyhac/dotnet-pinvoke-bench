@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>PInvokeBench.ReturnStringBenchmarks-20260521-191150</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.14.0, Windows 11 (10.0.26200.8457)
+11th Gen Intel Core i7-1195G7 2.90GHz, 1 CPU, 8 logical and 4 physical cores
+.NET SDK 10.0.300
+  [Host]   : .NET 8.0.27 (8.0.2726.22922), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  ShortRun : .NET 8.0.27 (8.0.2726.22922), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+</code></pre>
+<pre><code>Job=ShortRun  IterationCount=3  LaunchCount=1  
+WarmupCount=3  
+</code></pre>
+
+<table>
+<thead><tr><th>Method                                   </th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Gen0</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>DllImport_IntPtr_NoDecode</td><td>20.81 ns</td><td>97.94 ns</td><td>5.369 ns</td><td>1.04</td><td>0.32</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_IntPtr_PtrToStringAnsi</td><td>266.66 ns</td><td>75.47 ns</td><td>4.137 ns</td><td>13.37</td><td>2.83</td><td>0.0124</td><td>80 B</td><td>NA</td>
+</tr><tr><td>DllImport_IntPtr_PtrToStringUTF8</td><td>151.01 ns</td><td>147.62 ns</td><td>8.092 ns</td><td>7.57</td><td>1.64</td><td>0.0126</td><td>80 B</td><td>NA</td>
+</tr><tr><td>DllImport_IntPtr_PtrToStringUni</td><td>93.33 ns</td><td>25.04 ns</td><td>1.373 ns</td><td>4.68</td><td>0.99</td><td>0.0126</td><td>80 B</td><td>NA</td>
+</tr><tr><td>LibraryImport_IntPtr_NoDecode</td><td>17.23 ns</td><td>39.90 ns</td><td>2.187 ns</td><td>0.86</td><td>0.21</td><td>-</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_IntPtr_SuppressGC_PtrToStringUTF8</td><td>130.76 ns</td><td>126.32 ns</td><td>6.924 ns</td><td>6.55</td><td>1.42</td><td>0.0126</td><td>80 B</td><td>NA</td>
+</tr></tbody></table>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PInvoke Benchmark Report</title>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6"></script>
+<style>
+  :root { color-scheme: light dark; --border: #ddd; --muted: #666; --accent: #0366d6; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 1280px; margin: 2rem auto; padding: 0 1.5rem; color: #222; line-height: 1.5; }
+  h1 { font-size: 28px; margin: 0 0 0.25rem; }
+  h2 { font-size: 22px; margin: 2.5rem 0 0.5rem; border-top: 1px solid var(--border); padding-top: 1.5rem; }
+  h3 { font-size: 16px; margin: 1rem 0 0.5rem; color: var(--muted); font-weight: 600; }
+  .meta { color: var(--muted); font-size: 13px; margin: 0 0 1rem; }
+  .toc { background: #fafafa; padding: 0.75rem 1rem; margin: 1rem 0 2rem; font-size: 14px; }
+  .toc strong { display: block; margin-bottom: 0.25rem; }
+  .toc a { color: var(--accent); text-decoration: none; margin-right: 0.75rem; }
+  .toc a:hover { text-decoration: underline; }
+  p, ul { font-size: 14px; }
+  ul { padding-left: 1.5rem; }
+  code { font-family: ui-monospace, 'SF Mono', Consolas, monospace; font-size: 13px; background: #f5f5f5; padding: 1px 4px; border-radius: 3px; }
+  table { border-collapse: collapse; font-size: 12px; font-family: ui-monospace, 'SF Mono', Consolas, monospace; margin: 0.5rem 0 1rem; }
+  th, td { border: 1px solid var(--border); padding: 3px 8px; text-align: right; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { background: #f5f5f5; font-weight: 600; }
+  .chart { margin: 1rem 0; overflow-x: auto; }
+  details { margin: 0.5rem 0 1.5rem; }
+  details summary { font-size: 13px; color: var(--muted); cursor: pointer; user-select: none; }
+  details[open] summary { margin-bottom: 0.5rem; }
+  @media (prefers-color-scheme: dark) {
+    body { color: #ddd; background: #1a1a1a; }
+    .toc, thead th, code { background: #2a2a2a; }
+    th, td { border-color: #444; }
+    h2 { border-color: #444; }
+  }
+</style>
+</head>
+<body>
+
+<h1>.NET P/Invoke Benchmarks</h1>
+<p class="meta">__META__</p>
+
+<div class="toc">
+<strong>Categories</strong>
+<a href="#noop">Noop</a><a href="#fill">Fill</a><a href="#string">String</a><a href="#string-noop">StringNoop</a><a href="#widestring">WideString</a><a href="#widestring-noop">WideStringNoop</a><a href="#struct">Struct</a><a href="#callback">Callback</a><a href="#primitive">Primitive</a><a href="#returnstring">ReturnString</a><a href="#outref">OutRef</a><a href="#handle">Handle</a><a href="#lasterror">LastError</a>
+</div>
+
+<h2>Methodology</h2>
+<p>Each benchmark class compares strategies for one P/Invoke shape — buffer-out, string-in, struct passing, callback, etc. All variants in a class call the same native function, so timing differences come from the .NET marshalling/transition layer rather than native work. The native shim is a tiny Zig library compiled with <code>-Doptimize=ReleaseFast</code>.</p>
+<p>Times below are <strong>Mean</strong> from <code>--job Short</code> (3 warmup + 3 iterations × 1 launch). The x-axis is log-scale, so a bar twice as long is roughly 10× slower. Parameterized classes (<code>Size</code>, <code>Length × Pay</code>, <code>ArrayLen</code>) are faceted by parameter.</p>
+
+<h2 id="noop">NoopBenchmarks</h2>
+<p>Pure transition cost — the native side returns immediately, so what's measured is the cost of crossing the managed/unmanaged boundary plus any IL stub work. This is the floor for every other P/Invoke measurement; subtract these numbers from comparable variants elsewhere to isolate "what the marshalling actually adds."</p>
+<p><code>LibraryImport_Span_SuppressGC</code> is the headline figure — at well under 2 ns it's roughly an order of magnitude cheaper than the cooperative-transition variants. Only safe when the native side is short, non-blocking, and doesn't call back into managed code.</p>
+<div class="chart" data-class="NoopBenchmarks"></div>
+<details data-class="NoopBenchmarks"><summary>Data table</summary><div class="table"></div></details>
+
+<h2 id="fill">FillBenchmarks</h2>
+<p>Five strategies for passing a writable byte buffer to a native <code>memset</code>-shaped function. <code>byte[]</code> with the runtime stub pinning the array (V1) is the long-standing "obvious" shape; <code>byte* + fixed</code> (V2) and <code>ref byte</code> (V3) are the unsafe / by-ref equivalents the modern .NET ecosystem prefers.</p>
+<p>On net8+, the three DllImport variants and the LibraryImport variants typically converge within 1–2 ns at small sizes because the JIT folds them to the same call site. At <code>Size = 4096</code> the actual <code>memset</code> work dominates and the strategy choice becomes invisible. The <code>SuppressGC</code> variants stay flat at ~2 ns until the memset cost overtakes the transition saving.</p>
+<div class="chart" data-class="FillBenchmarks"></div>
+<details data-class="FillBenchmarks"><summary>Data table</summary><div class="table"></div></details>
+
+<h2 id="string">StringBenchmarks</h2>
+<p>UTF-8 string marshalling, the most-asked-about category for non-Windows-codepage interop. Variants cover the historical surface: legacy ANSI (<code>default</code>, <code>CharSet.Ansi</code>, <code>[LPStr]</code> — all aliases on Windows), per-parameter UTF-8 (<code>[LPUTF8Str]</code>), the source-generated <code>StringMarshalling.Utf8</code>, hand-rolled stackalloc/pool encoding, and pre-encoded byte buffers.</p>
+<p>The interesting comparisons:</p>
+<ul>
+  <li><strong>Pre-encoded vs runtime-encoded</strong>: <code>DllImport_PreEncoded</code> / <code>LibraryImport_ROSpan</code> beat <code>LibraryImport_Utf8</code> by a large margin at every payload size, because the runtime encoders allocate a fresh buffer per call.</li>
+  <li><strong>Payload class</strong>: ASCII (1 byte/char), Latin-1 (2 bytes/char with umlaut), CJK (3 bytes/char). Per-call encoding cost scales with the byte count, not the .NET string length.</li>
+  <li><strong>CharSet.Auto</strong> on Windows quietly marshals UTF-16, which the UTF-8 strlen here misinterprets — the timing is meaningful but the return value is nonsense. Useful demonstration of a real footgun.</li>
+</ul>
+<div class="chart" data-class="StringBenchmarks"></div>
+<details data-class="StringBenchmarks"><summary>Data table</summary><div class="table"></div></details>
+
+<h2 id="string-noop">StringNoopBenchmarks</h2>
+<p>Same variants as <a href="#string">StringBenchmarks</a> but pointed at a native function that returns 0 immediately. Subtract row-by-row from <code>StringBenchmarks</code> to isolate the "native walk" contribution from the .NET-side encoding+transition cost. For small <code>Length</code> values, the noop and non-noop numbers are nearly identical — the work is dominated by marshalling.</p>
+<div class="chart" data-class="StringNoopBenchmarks"></div>
+<details data-class="StringNoopBenchmarks"><summary>Data table</summary><div class="table"></div></details>
+
+<h2 id="widestring">WideStringBenchmarks</h2>
+<p>UTF-16 marshalling. .NET strings are already UTF-16 internally and NUL-terminated, so <code>char* + fixed</code> is genuinely zero-copy — the runtime just pins the string interior and passes its data pointer. Expect this to be the cheapest variant by a comfortable margin at small payloads.</p>
+<p><code>LibraryImport_ROSpan</code> uses <code>ReadOnlySpan&lt;ushort&gt;</code> because <code>char</code> isn't blittable without <code>DisableRuntimeMarshalling</code>; callers cast via <code>MemoryMarshal.Cast&lt;char, ushort&gt;</code>. <code>StringBuilder</code> is still around for legacy reasons but is the slowest path here.</p>
+<div class="chart" data-class="WideStringBenchmarks"></div>
+<details data-class="WideStringBenchmarks"><summary>Data table</summary><div class="table"></div></details>
+
+<h2 id="widestring-noop">WideStringNoopBenchmarks</h2>
+<p>Wide-char transition-only counterpart to <a href="#widestring">WideStringBenchmarks</a>. Same subtraction trick.</p>
+<div class="chart" data-class="WideStringNoopBenchmarks"></div>
+<details data-class="WideStringNoopBenchmarks"><summary>Data table</summary><div class="table"></div></details>
+
+<h2 id="struct">StructBenchmarks</h2>
+<p>Two struct sizes (<code>Point</code> = 8 bytes / two int, <code>Rect</code> = 16 bytes / four int) crossed with by-value, <code>in</code>, <code>ref</code>, raw pointer, and a <code>ReadOnlySpan&lt;Point&gt;</code> array variant. Both structs are blittable so the marshaller hands them off without conversion.</p>
+<p>The interesting axis is the size threshold: on Windows x64 anything larger than 8 bytes is passed by hidden pointer (caller copies onto stack, passes a pointer), while SysV (Linux/macOS x64) keeps using registers up to 16 bytes. Expect the <code>ByVal_Large</code> bar to be visibly worse than <code>In_Large</code> on Windows.</p>
+<div class="chart" data-class="StructBenchmarks"></div>
+<details data-class="StructBenchmarks"><summary>Data table</summary><div class="table"></div></details>
+
+<h2 id="callback">CallbackBenchmarks</h2>
+<p>Native-calls-managed — the marshaller has to produce a native-callable function pointer for the target. Four shapes, plus their variants with a <code>void*</code> userdata parameter:</p>
+<ul>
+  <li><code>DllImport_Delegate</code>: pass a delegate parameter. The runtime synthesises (or caches) a reverse stub per call. Baseline.</li>
+  <li><code>DllImport_FunctionPointer_Cached</code>: precompute the function pointer via <code>Marshal.GetFunctionPointerForDelegate</code>, pass as <code>IntPtr</code>. Skips the per-call stub work.</li>
+  <li><code>DllImport_FunctionPointer_PerCall</code>: same but does the <code>GetFunctionPointerForDelegate</code> on every call. Shows the registration cost.</li>
+  <li><code>DllImport_UnmanagedCallersOnly</code>: <code>delegate* unmanaged&lt;&gt;</code> pointing at a <code>[UnmanagedCallersOnly]</code> static method. No delegate object, no reverse stub, no GC handle. Should be the cheapest.</li>
+</ul>
+<p>The userdata variants exercise the standard C callback shape <code>cb(void* ctx, int arg)</code>. Cost should track the no-userdata variants closely — the extra argument is in a register.</p>
+<div class="chart" data-class="CallbackBenchmarks"></div>
+<details data-class="CallbackBenchmarks"><summary>Data table</summary><div class="table"></div></details>
+
+<h2 id="primitive">PrimitiveBenchmarks</h2>
+<p>Two distinct concerns lumped together:</p>
+<ul>
+  <li><strong>Bool widths.</strong> .NET's default <code>bool</code> marshals as 4-byte Win32 <code>BOOL</code>. <code>[MarshalAs(U1)]</code>/<code>I1</code> gives the 1-byte C <code>_Bool</code> shape. <code>VariantBool</code> is the COM 2-byte convention. <code>[MarshalAs(I4)]</code> on bool is rejected at runtime — bool only pairs with I1/U1/Bool/VariantBool. Passing a raw <code>byte</code> instead of <code>bool</code> sidesteps the marshaller entirely.</li>
+  <li><strong>Scalar pass-through.</strong> <code>int</code>, <code>long</code>, <code>float</code>, <code>double</code> through both DllImport and LibraryImport. All blittable, all in registers on x64. Tiny variation between them mostly reflects calling convention details (integer regs vs SSE regs) rather than marshalling cost.</li>
+</ul>
+<div class="chart" data-class="PrimitiveBenchmarks"></div>
+<details data-class="PrimitiveBenchmarks"><summary>Data table</summary><div class="table"></div></details>
+
+<h2 id="returnstring">ReturnStringBenchmarks</h2>
+<p>Library-owned static string returns. The direct <code>return string</code> shape from DllImport/LibraryImport is deliberately omitted: the runtime calls <code>CoTaskMemFree</code> on the returned pointer, which crashes when the library returns a static buffer. The correct shape is <code>IntPtr + Marshal.PtrToString*</code>, which gives the caller full control over decode and lifetime.</p>
+<p>The cheapest variant (<code>LibraryImport_IntPtr_SuppressGC + PtrToStringUTF8</code>) skips both the GC handshake and the encode-time check — useful when you have a hot path that returns a known-safe pointer.</p>
+<div class="chart" data-class="ReturnStringBenchmarks"></div>
+<details data-class="ReturnStringBenchmarks"><summary>Data table</summary><div class="table"></div></details>
+
+<h2 id="outref">OutRefBenchmarks</h2>
+<p>Five spellings for "give the native side a pointer to write an int into": <code>out int</code>, <code>ref int</code>, raw <code>int*</code> with <code>fixed</code>, stackalloc <code>Span&lt;int&gt;</code>, and explicit <code>IntPtr</code> via <code>Marshal.AllocHGlobal</code>. Plus the <code>inout</code> variant where the native side reads and writes.</p>
+<p>On modern runtimes <code>out</code>, <code>ref</code>, and <code>int*</code> collapse to the same generated call site. The <code>IntPtr + AllocHGlobal</code> variant is the slowest by a large margin — heap allocation + free per call.</p>
+<div class="chart" data-class="OutRefBenchmarks"></div>
+<details data-class="OutRefBenchmarks"><summary>Data table</summary><div class="table"></div></details>
+
+<h2 id="handle">HandleBenchmarks</h2>
+<p>Opaque handle round-trip — native receives a pointer and returns it unchanged. <code>IntPtr</code> is unmanaged: cheapest, but caller must guarantee the handle outlives every native call. <code>SafeHandle</code> is the right default for real OS handles: the runtime takes a ref-count on entry and releases on exit, guaranteeing validity for the duration.</p>
+<p>The price of <code>SafeHandle</code> is roughly 3–4× <code>IntPtr</code>. <code>SuppressGCTransition</code> is incompatible with <code>SafeHandle</code> because the AddRef/Release dance needs a normal cooperative transition.</p>
+<div class="chart" data-class="HandleBenchmarks"></div>
+<details data-class="HandleBenchmarks"><summary>Data table</summary><div class="table"></div></details>
+
+<h2 id="lasterror">LastErrorBenchmarks</h2>
+<p>The cost of <code>SetLastError = true</code> — the marshaller captures <code>GetLastError</code> (Windows) or <code>errno</code> (POSIX) into a thread-local immediately after the native call so <code>Marshal.GetLastWin32Error</code>/<code>GetLastPInvokeError</code> can read it. One extra TLS write per call.</p>
+<p>Worth comparing the "set but don't read" and "set and read" rows: most overhead is in the capture step, the read itself is cheap. Below the noise floor for most benchmarks, but real and measurable here against a noop baseline.</p>
+<div class="chart" data-class="LastErrorBenchmarks"></div>
+<details data-class="LastErrorBenchmarks"><summary>Data table</summary><div class="table"></div></details>
+
+<h2>Cross-cutting findings</h2>
+<ul>
+  <li><strong><code>SuppressGCTransition</code> is the single largest lever.</strong> At small payloads it drops the per-call cost from ~5 ns to ~1 ns. Only safe when the native side is short, non-blocking, and doesn't call back to managed.</li>
+  <li><strong>Pre-encoded data beats runtime encoding</strong> by a large margin for strings. If you can hold a UTF-8 byte buffer alongside your .NET string, the cost is essentially a pin.</li>
+  <li><strong>Function pointer + UnmanagedCallersOnly</strong> is the cheapest callback shape — no GC handle, no reverse stub, no delegate object. Use it for hot callback paths where the target is a static method.</li>
+  <li><strong>Modern P/Invoke variants converge</strong> for blittable parameters. The choice between <code>byte*</code>, <code>ref byte</code>, <code>Span&lt;byte&gt;</code>, and <code>byte[]</code> rarely matters on net8+; readability wins.</li>
+  <li><strong>Net48 keeps surprises</strong> — the legacy IL stubs took different paths for <code>byte[]</code> vs <code>byte*</code>/<code>ref byte</code>, and the array path is sometimes the faster one despite looking more "old-fashioned."</li>
+</ul>
+
+<script>
+const benchData = __DATA__;
+const META = __META__JS;
+
+function fmtNs(v) {
+  if (v == null) return '';
+  if (v < 1000) return v.toFixed(2) + ' ns';
+  if (v < 1e6)  return (v/1000).toFixed(2) + ' µs';
+  return (v/1e6).toFixed(2) + ' ms';
+}
+
+function renderChart(container, classData) {
+  const { paramCols, rows } = classData;
+  if (!rows || rows.length === 0) {
+    container.textContent = '(no data)';
+    return;
+  }
+  const methods = Array.from(new Set(rows.map(d => d.Method)));
+  const distinct = c => new Set(rows.map(d => d[c])).size;
+  const opts = {
+    marginLeft: 290,
+    width: Math.min(1200, container.parentElement.clientWidth - 20),
+    height: Math.max(220, 24 * methods.length + 70),
+    x: { type: 'log', label: 'Mean (ns)', grid: true },
+    y: { label: null },
+    color: { legend: paramCols.length >= 2 },
+    marks: []
+  };
+  if (paramCols.length === 0) {
+    opts.marks.push(Plot.barX(rows, { y: 'Method', x: 'Mean', sort: { y: '-x' } }));
+  } else if (paramCols.length === 1) {
+    opts.fy = { label: paramCols[0] };
+    opts.height = Math.max(240, 22 * methods.length * distinct(paramCols[0]) + 80);
+    opts.marks.push(Plot.barX(rows, { y: 'Method', x: 'Mean', fy: paramCols[0], sort: { y: '-x' } }));
+  } else {
+    opts.fx = { label: paramCols[0] };
+    opts.height = Math.max(280, 22 * methods.length + 100);
+    opts.marks.push(Plot.barX(rows, { fx: paramCols[0], y: 'Method', x: 'Mean', fill: paramCols[1], sort: { y: '-x' } }));
+  }
+  container.appendChild(Plot.plot(opts));
+}
+
+function renderTable(container, classData) {
+  const { paramCols, rows } = classData;
+  if (!rows || rows.length === 0) {
+    container.textContent = '(no data)';
+    return;
+  }
+  const cols = ['Method', ...paramCols, 'Mean', 'Error', 'Allocated'];
+  const t = document.createElement('table');
+  const thead = document.createElement('thead');
+  thead.innerHTML = '<tr>' + cols.map(c => '<th>' + c + '</th>').join('') + '</tr>';
+  t.appendChild(thead);
+  const tbody = document.createElement('tbody');
+  rows.forEach(row => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = cols.map(c => {
+      let v = row[c];
+      if (c === 'Mean' || c === 'Error') v = fmtNs(v);
+      else if (c === 'Allocated') v = (v ?? 0) + ' B';
+      else if (v == null) v = '';
+      return '<td>' + v + '</td>';
+    }).join('');
+    tbody.appendChild(tr);
+  });
+  t.appendChild(tbody);
+  container.appendChild(t);
+}
+
+document.querySelectorAll('.chart').forEach(el => {
+  const cls = el.dataset.class;
+  if (benchData[cls]) renderChart(el, benchData[cls]);
+  else el.innerHTML = '<p style="color:#999;font-size:13px">(no data for ' + cls + ')</p>';
+});
+
+document.querySelectorAll('details').forEach(el => {
+  const cls = el.dataset.class;
+  const tableSlot = el.querySelector('.table');
+  if (benchData[cls] && tableSlot) {
+    el.addEventListener('toggle', () => {
+      if (el.open && !tableSlot.querySelector('table')) {
+        renderTable(tableSlot, benchData[cls]);
+      }
+    }, { once: false });
+  }
+});
+</script>
+</body>
+</html>

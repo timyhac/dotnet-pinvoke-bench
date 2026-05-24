@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>PInvokeBench.CallbackBenchmarks-20260521-185603</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.14.0, Windows 11 (10.0.26200.8457)
+11th Gen Intel Core i7-1195G7 2.90GHz, 1 CPU, 8 logical and 4 physical cores
+.NET SDK 10.0.300
+  [Host]   : .NET 8.0.27 (8.0.2726.22922), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  ShortRun : .NET 8.0.27 (8.0.2726.22922), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+</code></pre>
+<pre><code>Job=ShortRun  IterationCount=3  LaunchCount=1  
+WarmupCount=3  
+</code></pre>
+
+<table>
+<thead><tr><th>Method                           </th><th>Mean</th><th>Error</th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>DllImport_Delegate</td><td>63.70 ns</td><td>23.91 ns</td><td>1.311 ns</td><td>1.00</td><td>0.03</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_FunctionPointer_Cached</td><td>20.67 ns</td><td>19.67 ns</td><td>1.078 ns</td><td>0.32</td><td>0.02</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_FunctionPointer_PerCall</td><td>58.25 ns</td><td>22.83 ns</td><td>1.251 ns</td><td>0.91</td><td>0.02</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_UnmanagedCallersOnly</td><td>14.83 ns</td><td>10.56 ns</td><td>0.579 ns</td><td>0.23</td><td>0.01</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_Delegate_Userdata</td><td>71.22 ns</td><td>70.50 ns</td><td>3.864 ns</td><td>1.12</td><td>0.06</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_FunctionPointer_Userdata</td><td>40.63 ns</td><td>37.03 ns</td><td>2.029 ns</td><td>0.64</td><td>0.03</td><td>-</td><td>NA</td>
+</tr><tr><td>DllImport_UnmanagedCallersOnly_Userdata</td><td>16.74 ns</td><td>31.00 ns</td><td>1.699 ns</td><td>0.26</td><td>0.02</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_Delegate</td><td>77.81 ns</td><td>262.16 ns</td><td>14.370 ns</td><td>1.22</td><td>0.20</td><td>-</td><td>NA</td>
+</tr><tr><td>LibraryImport_UnmanagedCallersOnly</td><td>23.15 ns</td><td>40.52 ns</td><td>2.221 ns</td><td>0.36</td><td>0.03</td><td>-</td><td>NA</td>
+</tr></tbody></table>
+</body>
+</html>

@@ -3,16 +3,21 @@ bin/
 obj/
 [Dd]ebug/
 [Rr]elease/
-BenchmarkDotNet.Artifacts/
+# Track results/ (committed snapshot); ignore logs, per-run scratch, and the
+# transient per-class JSON sidecars (.report-data/) that report.html is built from.
+benchmark/BenchmarkDotNet.Artifacts/*
+!benchmark/BenchmarkDotNet.Artifacts/results/
+benchmark/BenchmarkDotNet.Artifacts/results/.report-data/
 
 # Native build artefacts (built on demand via `zig build`)
 runtimes/
 .zig-cache/
 zig-out/
 
-# IDE / OS
+# IDE / OS / tooling
 .vs/
 .idea/
+.claude/
 *.user
 *.suo
 .DS_Store
